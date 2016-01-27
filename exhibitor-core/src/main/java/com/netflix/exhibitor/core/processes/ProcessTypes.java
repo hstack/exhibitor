@@ -23,7 +23,7 @@ public enum ProcessTypes
         @Override
         public String getDescription()
         {
-            return "Cleanup Task";
+            return "ZK_C";
         }
     },
 
@@ -32,7 +32,7 @@ public enum ProcessTypes
         @Override
         public String getDescription()
         {
-            return "ZooKeeper Server";
+            return "ZK";
         }
     }
     ;

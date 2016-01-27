@@ -120,7 +120,7 @@ public class StandardProcessOperations implements ProcessOperations
         }
 
 
-        ProcessBuilder  builder = buildZkServerScript("start");
+        ProcessBuilder  builder = buildZkServerScript("start-foreground");
 
         exhibitor.getProcessMonitor().monitor(ProcessTypes.ZOOKEEPER, builder.start(), null, ProcessMonitor.Mode.LEAVE_RUNNING_ON_INTERRUPT, ProcessMonitor.Streams.BOTH);
 
