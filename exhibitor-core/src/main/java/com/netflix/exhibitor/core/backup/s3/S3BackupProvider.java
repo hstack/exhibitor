@@ -342,7 +342,7 @@ public class S3BackupProvider implements BackupProvider
     }
 
     @Override
-    public List<BackupMetaData> getAvailableBackups(Exhibitor exhibitor, Map<String, String> configValues) throws Exception
+    public List<BackupMetaData> getAvailableBackups(Exhibitor exhibitor, final Map<String, String> configValues) throws Exception
     {
         String            keyPrefix = getKeyPrefix(configValues);
 
@@ -365,7 +365,7 @@ public class S3BackupProvider implements BackupProvider
                     @Override
                     public boolean apply(S3ObjectSummary summary)
                     {
-                        return fromKey(summary.getKey()) != null;
+                        return fromKey(summary.getKey(), configValues) != null;
                     }
                 }
             );
@@ -378,7 +378,7 @@ public class S3BackupProvider implements BackupProvider
                     @Override
                     public BackupMetaData apply(S3ObjectSummary summary)
                     {
-                        return fromKey(summary.getKey());
+                        return fromKey(summary.getKey(), configValues);
                     }
                 }
             );
@@ -468,19 +468,16 @@ public class S3BackupProvider implements BackupProvider
 
     private String toKey(BackupMetaData backup, Map<String, String> configValues)
     {
-        String  name = backup.getName().replace(SEPARATOR, SEPARATOR_REPLACEMENT);
+        String  name = backup.getName();//.replace(SEPARATOR, SEPARATOR_REPLACEMENT);
         String  prefix = getKeyPrefix(configValues);
 
-        return prefix + SEPARATOR + name + SEPARATOR + backup.getModifiedDate();
+        String toret = prefix + SEPARATOR + name + SEPARATOR + backup.getModifiedDate();
+        return toret;
     }
 
     private String getKeyPrefix(Map<String, String> configValues)
     {
         String  prefix = configValues.get(CONFIG_KEY_PREFIX.getKey());
-        if ( prefix != null )
-        {
-            prefix = prefix.replace(SEPARATOR, SEPARATOR_REPLACEMENT);
-        }
 
         if ( (prefix == null) || (prefix.length() == 0))
         {
@@ -489,13 +486,16 @@ public class S3BackupProvider implements BackupProvider
         return prefix;
     }
 
-    private static BackupMetaData fromKey(String key)
+    private static BackupMetaData fromKey(String key, Map<String, String> configValues)
     {
-        String[]        parts = key.split("\\" + SEPARATOR);
+        String  prefix = configValues.get(CONFIG_KEY_PREFIX.getKey());
+        String tmp = key.replace(prefix, "");
+        String[]        parts = tmp.split("\\" + SEPARATOR);
         if ( parts.length != 3 )
         {
             return null;
         }
+
         return new BackupMetaData(parts[1], Long.parseLong(parts[2]));
     }
 }
