@@ -65,6 +65,8 @@ public class InstanceState
         timestampMs = System.currentTimeMillis();
     }
 
+
+    //TODO is this needed?
     @SuppressWarnings("RedundantIfStatement")
     @Override
     public boolean equals(Object o)

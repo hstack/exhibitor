@@ -42,6 +42,11 @@ public class GetMonitorData implements Activity
     }
 
     @Override
+    public String getName() {
+        return this.getClass().getSimpleName();
+    }
+
+    @Override
     public Boolean call() throws Exception
     {
         List<String>            lines = new FourLetterWord(FourLetterWord.Word.MNTR, exhibitor.getThisJVMHostname(), exhibitor.getConfigManager().getConfig(), exhibitor.getConnectionTimeOutMs()).getResponseLines();

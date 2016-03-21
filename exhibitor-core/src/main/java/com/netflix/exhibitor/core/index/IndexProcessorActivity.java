@@ -37,6 +37,11 @@ public class IndexProcessorActivity implements Activity
     }
 
     @Override
+    public String getName() {
+        return this.getClass().getSimpleName();
+    }
+
+    @Override
     public Boolean call() throws Exception
     {
         String path = exhibitor.getConfigManager().getConfig().getString(StringConfigs.LOG_INDEX_DIRECTORY);

@@ -76,14 +76,14 @@ public class StandardProcessOperations implements ProcessOperations
     @Override
     public void killInstance() throws Exception
     {
-        exhibitor.getLog().add(ActivityLog.Type.INFO, "Attempting to start/restart ZooKeeper");
+        exhibitor.getLog().add(ActivityLog.Type.INFO, getClass().getSimpleName() + "Attempting to start/restart ZooKeeper");
 
         exhibitor.getProcessMonitor().destroy(ProcessTypes.ZOOKEEPER);
 
         String pid = getPid();
         if ( pid == null )
         {
-            exhibitor.getLog().add(ActivityLog.Type.INFO, "jps didn't find instance - assuming ZK is not running");
+            exhibitor.getLog().add(ActivityLog.Type.INFO, getClass().getSimpleName() + "jps didn't find instance - assuming ZK is not running");
         }
         else
         {

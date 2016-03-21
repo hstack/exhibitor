@@ -79,7 +79,7 @@ public class ActivityLog
             {
                 public String apply(Message message)
                 {
-                    return message.date + separator + message.type + separator + message.text;
+                    return message.date + "\t" + message.type + "\t" + message.text;
                 }
             }
         );

@@ -145,8 +145,13 @@ public class ActivityQueue implements Closeable
                                 ActivityHolder holder = thisQueue.take();
                                 try
                                 {
+                                    log.info(holder.activity.getName() + ".call()");
                                     Boolean result = holder.activity.call();
+                                    log.info(holder.activity.getName() + ".call().done");
+
+                                    log.info(holder.activity.getName() + ".completed()");
                                     holder.activity.completed((result != null) && result);
+                                    log.info(holder.activity.getName() + ".completed().done");
                                 }
                                 catch ( Throwable e )
                                 {

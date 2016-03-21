@@ -69,6 +69,11 @@ public class BackupManager implements Closeable
             }
 
             @Override
+            public String getName() {
+                return BackupManager.this.getClass().getSimpleName();
+            }
+
+            @Override
             public Boolean call() throws Exception
             {
                 doBackup();

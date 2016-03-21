@@ -46,6 +46,11 @@ public class AutomaticInstanceManagement implements Activity
     }
 
     @Override
+    public String getName() {
+        return this.getClass().getSimpleName();
+    }
+
+    @Override
     public Boolean call() throws Exception
     {
         if ( exhibitor.getConfigManager().getConfig().getInt(IntConfigs.AUTO_MANAGE_INSTANCES) == 0 )

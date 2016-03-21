@@ -36,6 +36,11 @@ public class StartInstance implements Activity
     }
 
     @Override
+    public String getName() {
+        return this.getClass().getSimpleName();
+    }
+
+    @Override
     public Boolean call() throws Exception
     {
         exhibitor.getLog().add(ActivityLog.Type.INFO, "Attempting to start instance");

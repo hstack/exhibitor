@@ -46,6 +46,11 @@ public class CleanupManager implements Closeable
             }
 
             @Override
+            public String getName() {
+                return CleanupManager.this.getClass().getSimpleName();
+            }
+
+            @Override
             public Boolean call() throws Exception
             {
                 if ( exhibitor.getControlPanelValues().isSet(ControlPanelTypes.CLEANUP) )

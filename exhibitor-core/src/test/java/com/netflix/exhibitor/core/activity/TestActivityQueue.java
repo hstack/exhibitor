@@ -90,6 +90,11 @@ public class TestActivityQueue
                 }
 
                 @Override
+                public String getName() {
+                    return this.getClass().getName();
+                }
+
+                @Override
                 public Boolean call() throws Exception
                 {
                     latch.await();
@@ -103,6 +108,11 @@ public class TestActivityQueue
                 @Override
                 public void completed(boolean wasSuccessful)
                 {
+                }
+
+                @Override
+                public String getName() {
+                    return TestActivityQueue.this.getClass().getName();
                 }
 
                 @Override
@@ -155,6 +165,11 @@ public class TestActivityQueue
                 }
 
                 @Override
+                public String getName() {
+                    return "test";
+                }
+
+                @Override
                 public Boolean call() throws Exception
                 {
                     count.incrementAndGet();
@@ -191,6 +206,11 @@ public class TestActivityQueue
                 @Override
                 public void completed(boolean wasSuccessful)
                 {
+                }
+
+                @Override
+                public String getName() {
+                    return null;
                 }
 
                 @Override
@@ -243,6 +263,11 @@ public class TestActivityQueue
                 }
 
                 @Override
+                public String getName() {
+                    return TestActivityQueue.this.getClass().getName();
+                }
+
+                @Override
                 public Boolean call() throws Exception
                 {
                     callTime.set(System.currentTimeMillis());
@@ -276,6 +301,11 @@ public class TestActivityQueue
                 public void completed(boolean wasSuccessful)
                 {
                     latch.countDown();
+                }
+
+                @Override
+                public String getName() {
+                    return TestActivityQueue.this.getClass().getName();
                 }
 
                 @Override

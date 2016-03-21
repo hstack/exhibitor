@@ -120,8 +120,10 @@ public class ExhibitorMain implements Closeable
 
         builder.shutdownProc(makeShutdownProc(this));
         exhibitor = new Exhibitor(configProvider, null, backupProvider, builder.build());
+        log.info("Intialized ", exhibitor);
+        log.info("Starting " + exhibitor);
         exhibitor.start();
-
+        log.info("Started " + exhibitor);
         DefaultResourceConfig   application = JerseySupport.newApplicationConfig(new UIContext(exhibitor));
         ServletContainer        container = new ServletContainer(application);
         server = new Server(httpPort);
@@ -136,6 +138,7 @@ public class ExhibitorMain implements Closeable
         {
             addSecurityFile(realm, securityArguments.getSecurityFile(), root);
         }
+        log.info("Finished " + this.getClass());
     }
 
     private void addRemoteAuth(ExhibitorArguments.Builder builder, String remoteAuthSpec)
@@ -176,7 +179,7 @@ public class ExhibitorMain implements Closeable
         {
             while ( !shutdownSignaled.get() && !Thread.currentThread().isInterrupted() )
             {
-                Thread.sleep(5000);
+                Thread.sleep(100);
             }
         }
         catch ( InterruptedException e )

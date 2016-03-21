@@ -65,6 +65,7 @@ public class Exhibitor implements Closeable
 {
     private final ActivityLog                   log;
     private final ActivityQueue                 activityQueue = new ActivityQueue();
+
     private final MonitorRunningInstance        monitorRunningInstance;
     private final Collection<UITab>             additionalUITabs;
     private final ProcessOperations             processOperations;
@@ -125,25 +126,48 @@ public class Exhibitor implements Closeable
         System.out.println(getVersion());
 
         this.arguments = arguments;
+
         log = new ActivityLog(arguments.logWindowSizeLines);
+        log.add(ActivityLog.Type.INFO, "Initialized logging");
+
         this.configManager = new ConfigManager(this, configProvider, arguments.configCheckMs);
+        log.add(ActivityLog.Type.INFO, "Initialized configManager" + this.configManager);
+
         this.additionalUITabs = (additionalUITabs != null) ? ImmutableList.copyOf(additionalUITabs) : ImmutableList.<UITab>of();
+
         this.processOperations = new StandardProcessOperations(this);
+        log.add(ActivityLog.Type.INFO, "Initialized " + processOperations);
+
         monitorRunningInstance = new MonitorRunningInstance(this);
+        log.add(ActivityLog.Type.INFO, "Initialized " + monitorRunningInstance);
+
         cleanupManager = new CleanupManager(this);
+        log.add(ActivityLog.Type.INFO, "Initialized " + cleanupManager);
+
         indexCache = new IndexCache(log);
+        log.add(ActivityLog.Type.INFO, "Initialized " + indexCache);
+
         processMonitor = new ProcessMonitor(this);
-        autoInstanceManagement = new RepeatingActivityImpl(log, activityQueue, QueueGroups.MAIN, new AutomaticInstanceManagement(this), getAutoInstanceManagementPeriod());
+        log.add(ActivityLog.Type.INFO, "Initialized " + processMonitor);
+
+        AutomaticInstanceManagement actualActivity = new AutomaticInstanceManagement(this);
+        autoInstanceManagement = new RepeatingActivityImpl(log, activityQueue, QueueGroups.MAIN,
+                                                           actualActivity, getAutoInstanceManagementPeriod()
+        );
+        log.add(ActivityLog.Type.INFO, "Initialized " + autoInstanceManagement);
 
         remoteInstanceRequestClient = new RemoteInstanceRequestClientImpl(arguments.remoteConnectionConfiguration);
+        log.add(ActivityLog.Type.INFO, "Initialized " + remoteInstanceRequestClient);
 
         AtomicReference<CompositeMonitor<?>>    theMonitor = new AtomicReference<CompositeMonitor<?>>();
         servoMonitoring = initServo(this, log, activityQueue, arguments, theMonitor);
+        log.add(ActivityLog.Type.INFO, "Initialized " + servoMonitoring);
         servoCompositeMonitor = theMonitor.get();
 
         controlPanelValues = new ControlPanelValues(getPreferences());
 
         this.backupManager = new BackupManager(this, backupProvider);
+        log.add(ActivityLog.Type.INFO, "Initialized " + backupManager + " with provider " + backupProvider);
     }
 
     public String   getVersion()

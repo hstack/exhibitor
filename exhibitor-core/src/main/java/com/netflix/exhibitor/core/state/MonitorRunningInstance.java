@@ -57,6 +57,11 @@ public class MonitorRunningInstance implements Closeable
             }
 
             @Override
+            public String getName() {
+                return MonitorRunningInstance.this.getClass().getSimpleName();
+            }
+
+            @Override
             public Boolean call() throws Exception
             {
                 doWork();
@@ -64,7 +69,8 @@ public class MonitorRunningInstance implements Closeable
             }
         };
 
-        repeatingActivity = new RepeatingActivityImpl(exhibitor.getLog(), exhibitor.getActivityQueue(), QueueGroups.MAIN, activity, exhibitor.getConfigManager().getConfig().getInt(IntConfigs.CHECK_MS));
+        repeatingActivity = new RepeatingActivityImpl(exhibitor.getLog(), exhibitor.getActivityQueue(), QueueGroups.MAIN, activity, exhibitor.getConfigManager().getConfig().getInt(IntConfigs.CHECK_MS)
+        );
     }
 
     public void start()
@@ -109,21 +115,23 @@ public class MonitorRunningInstance implements Closeable
     void doWork() throws Exception
     {
         InstanceConfig  config = exhibitor.getConfigManager().getConfig();
-        StateAndLeader  stateAndLeader = getStateAndLeader();
-        InstanceState   instanceState = new InstanceState(new ServerList(config.getString(StringConfigs.SERVERS_SPEC)), stateAndLeader.getState(), new RestartSignificantConfig(config));
+        StateAndLeader  localZkState = getStateAndLeader();
+        InstanceState   instanceState = new InstanceState(new ServerList(config.getString(StringConfigs.SERVERS_SPEC)), localZkState.getState(), new RestartSignificantConfig(config));
 
-        currentIsLeader.set(stateAndLeader.isLeader());
+        currentIsLeader.set(localZkState.isLeader()); // TODO rename
 
         exhibitor.getConfigManager().checkRollingConfig(instanceState);
 
         InstanceState   localCurrentInstanceState = currentInstanceState.get();
+        // if same server list, config, instance state (latent, down, serving, not-serving)
         if ( instanceState.equals(localCurrentInstanceState) )
         {
             checkForRestart(config, localCurrentInstanceState);
         }
         else
         {
-            handleServerListChange(instanceState, localCurrentInstanceState);
+            // TODO we seem to handleStateChange even if server list hasn't changed
+            handleStateChange(instanceState, localCurrentInstanceState);
         }
     }
 
@@ -154,40 +162,33 @@ public class MonitorRunningInstance implements Closeable
         return (us == null) || !us.equals(localUs);
     }
 
-    private void handleServerListChange(InstanceState instanceState, InstanceState localCurrentInstanceState) throws Exception
+    private void handleStateChange(InstanceState instanceState, InstanceState localCurrentInstanceState) throws Exception
     {
-        boolean         serverListChange = serverListHasChanged(instanceState, localCurrentInstanceState);
-        boolean         configChange = (localCurrentInstanceState != null) && !localCurrentInstanceState.getCurrentConfig().equals(instanceState.getCurrentConfig());
-        currentInstanceState.set(instanceState);
-
         exhibitor.getLog().add(ActivityLog.Type.INFO, "State: " + instanceState.getState().getDescription());
 
-        if ( serverListChange )
+        currentInstanceState.set(instanceState);
+
+        boolean configHasChanged = (localCurrentInstanceState != null) &&
+                                   !localCurrentInstanceState.getCurrentConfig()
+                                       .equals(instanceState.getCurrentConfig());
+
+        boolean shouldRestart = false;
+        if ( serverListHasChanged(instanceState, localCurrentInstanceState) )
         {
             exhibitor.getLog().add(ActivityLog.Type.INFO, "Server list has changed");
-            restartZooKeeperAndIncrementCount(localCurrentInstanceState);
+            shouldRestart = true;
         }
-        else if ( configChange )
+        else if ( configHasChanged )
         {
             exhibitor.getLog().add(ActivityLog.Type.INFO, "ZooKeeper related configuration has changed");
-            restartZooKeeperAndIncrementCount(localCurrentInstanceState);
+            shouldRestart = true;
         }
-        else
+        else if ( instanceState.getState() == InstanceStateTypes.DOWN )
         {
-            switch ( instanceState.getState() )
-            {
-                case DOWN:
-                {
-                    restartZooKeeperAndIncrementCount(localCurrentInstanceState);
-                    break;
-                }
-
-                default:
-                {
-                    // nop
-                    break;
-                }
-            }
+            shouldRestart = true;
+        }
+        if (shouldRestart) {
+            restartZooKeeperAndIncrementCount(localCurrentInstanceState);
         }
     }
 
@@ -211,7 +212,8 @@ public class MonitorRunningInstance implements Closeable
             return; // there is a server list and we're not in it. Therefore, there's no point in restarting, it will always fail
         }
 
-        if ( (localCurrentInstanceState.getState() == InstanceStateTypes.DOWN) || (localCurrentInstanceState.getState() == InstanceStateTypes.NOT_SERVING) )
+        if ( (localCurrentInstanceState.getState() == InstanceStateTypes.DOWN) ||
+             (localCurrentInstanceState.getState() == InstanceStateTypes.NOT_SERVING) )
         {
             long        elapsedMs = System.currentTimeMillis() - localCurrentInstanceState.getTimestampMs();
             int         downInstanceRestartMs = getDownInstanceRestartMs(config);
@@ -236,6 +238,7 @@ public class MonitorRunningInstance implements Closeable
         }
         if ( !exhibitor.getControlPanelValues().isSet(ControlPanelTypes.RESTARTS) )
         {
+            //TODO perhaps control panel should be reflected in the configuration instead?
             exhibitor.getLog().add(ActivityLog.Type.INFO, "Restart of ZooKeeper skipped due to control panel setting");
             return;
         }
@@ -243,6 +246,8 @@ public class MonitorRunningInstance implements Closeable
         exhibitor.getActivityQueue().add(QueueGroups.MAIN, new KillRunningInstance(exhibitor, true));
     }
 
+
+    //TODO inline?
     private void restartZooKeeperAndIncrementCount(InstanceState currentInstanceState) throws Exception
     {
         restartZooKeeper(currentInstanceState);

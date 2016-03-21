@@ -17,6 +17,7 @@
 package com.netflix.exhibitor.core.automanage;
 
 import com.netflix.exhibitor.core.Exhibitor;
+import com.netflix.exhibitor.core.activity.ActivityLog;
 import com.netflix.exhibitor.core.rest.ClusterResource;
 import javax.ws.rs.Path;
 import javax.ws.rs.core.MediaType;
@@ -72,21 +73,24 @@ public class RemoteInstanceRequest
         String      remoteResponse;
         String      errorMessage;
         {
+            URI remoteUri = UriBuilder
+                .fromPath(getPath())
+                .scheme(exhibitor.getRestScheme())
+                .host(hostname)
+                .port(exhibitor.getRestPort())
+                .path(ClusterResource.class, methodName)
+                .build(values);
+
             try
             {
-                URI remoteUri = UriBuilder
-                    .fromPath(getPath())
-                    .scheme(exhibitor.getRestScheme())
-                    .host(hostname)
-                    .port(exhibitor.getRestPort())
-                    .path(ClusterResource.class, methodName)
-                    .build(values);
 
                 remoteResponse = client.getWebResource(remoteUri, MediaType.APPLICATION_JSON_TYPE, String.class);
                 errorMessage = "";
             }
             catch ( Exception e )
             {
+                exhibitor.getLog().add(ActivityLog.Type.ERROR, getClass().getSimpleName() +
+                                                               "makeRequest + " + remoteUri, e);
                 remoteResponse = "{}";
                 errorMessage = e.getMessage();
                 if ( errorMessage == null )

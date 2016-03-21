@@ -38,7 +38,7 @@ public class RepeatingActivityImpl implements RepeatingActivity
      * @param actualActivity the repeating activity
      * @param timePeriodMs the period between executions
      */
-    public RepeatingActivityImpl(final ActivityLog log, ActivityQueue queue, QueueGroups group, final Activity actualActivity, long timePeriodMs)
+    public RepeatingActivityImpl(final ActivityLog log, ActivityQueue queue, QueueGroups group, final Activity actualActivity, final long timePeriodMs)
     {
         this.queue = queue;
         this.group = group;
@@ -71,6 +71,12 @@ public class RepeatingActivityImpl implements RepeatingActivity
                 }
                 return result;
             }
+
+            @Override
+            public String getName() {
+                return "Repeating(" + actualActivity.getName() + ", " + timePeriodMs + "ms";
+            }
+
         };
         this.timePeriodMs = new AtomicLong(Math.max(MIN_TIME_PERIOD_MS, timePeriodMs));
     }

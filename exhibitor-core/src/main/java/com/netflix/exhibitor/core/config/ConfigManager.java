@@ -42,8 +42,8 @@ import java.util.concurrent.atomic.AtomicReference;
 public class ConfigManager implements Closeable
 {
     private final Exhibitor exhibitor;
-    private final ConfigProvider provider;
-    private final int maxAttempts;
+    private final ConfigProvider provider; // ZK, S3, NFS, etc.
+    private final int maxAttempts; // attempts for?
     private final RepeatingActivity repeatingActivity;
     private final AtomicReference<LoadedInstanceConfig> config = new AtomicReference<LoadedInstanceConfig>();
     private final Set<ConfigListener> configListeners = Sets.newSetFromMap(Maps.<ConfigListener, Boolean>newConcurrentMap());
@@ -74,13 +74,19 @@ public class ConfigManager implements Closeable
             }
 
             @Override
+            public String getName() {
+                return ConfigManager.this.getClass().getSimpleName();
+            }
+
+            @Override
             public Boolean call() throws Exception
             {
                 doWork();
                 return true;
             }
         };
-        repeatingActivity = new RepeatingActivityImpl(exhibitor.getLog(), exhibitor.getActivityQueue(), QueueGroups.MAIN, activity, checkMs);
+        repeatingActivity = new RepeatingActivityImpl(exhibitor.getLog(), exhibitor.getActivityQueue(), QueueGroups.MAIN, activity, checkMs
+        );
 
         config.set(provider.loadConfig());
     }
@@ -260,6 +266,7 @@ public class ConfigManager implements Closeable
         return rollingConfigAdvanceAttempt.get(); // test only
     }
 
+    //TODO inline (only called from one place, always does getStatus)
     @VisibleForTesting
     protected RemoteInstanceRequest.Result callRemoteInstanceRequest(RemoteInstanceRequest remoteInstanceRequest)
     {
@@ -325,6 +332,7 @@ public class ConfigManager implements Closeable
         }
 
         ConfigCollection                newCollection = new ConfigCollectionImpl(config.getRootConfig(), config.getRollingConfig(), rollingHostNames, rollingHostNamesIndex + 1);
+        // TODO stsate created with empty instanceState - w
         RollingReleaseState             state = new RollingReleaseState(new InstanceState(), newCollection);
         if ( state.getCurrentRollingHostname().equals(exhibitor.getThisJVMHostname()) )
         {
