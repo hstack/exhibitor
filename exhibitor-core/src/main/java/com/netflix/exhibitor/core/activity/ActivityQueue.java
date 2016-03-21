@@ -29,6 +29,13 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * Activity queue execution.
+ * Multiple QueueGroups of DelayedQueues each with an execution thread
+ * queue-group <-> queue <-> thread
+ *
+ * Supports adding and replacing activities with an optional delay
+ */
 public class ActivityQueue implements Closeable
 {
     private static final Logger log = LoggerFactory.getLogger(ActivityQueue.class);
@@ -36,11 +43,25 @@ public class ActivityQueue implements Closeable
     private final ExecutorService               service = Executors.newCachedThreadPool(new ThreadFactoryBuilder().setNameFormat("ActivityQueue-%d").build());
     private final Map<QueueGroups, DelayQueue<ActivityHolder>> queues;
 
+
+    /**
+     * A holder for an activity and an a delay (based on clock) time)
+     * after which the activity should be executed
+     */
+
     private static class ActivityHolder implements Delayed
     {
-        private final Activity      activity;
-        private final long          endMs;
+        private final Activity      activity; // the actual activity
+        private final long          endMs; // clock time when activity should be executed
 
+      /**
+       *
+       * TODO rename to DelayedActivity? Also it seems that all activities could be DelayedActivity
+       * with some having a 0 delay, and there's no need to have two objects
+       *
+       * @param activity the actual activity
+       * @param delayMs delay from current clock time until the activity could be executed
+       */
         private ActivityHolder(Activity activity, long delayMs)
         {
             this.activity = activity;
@@ -102,6 +123,7 @@ public class ActivityQueue implements Closeable
     }
 
     /**
+     * Starts the queue execution threads
      * The queue must be started
      */
     public void start()

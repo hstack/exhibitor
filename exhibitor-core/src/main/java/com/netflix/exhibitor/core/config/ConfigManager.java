@@ -152,6 +152,14 @@ public class ConfigManager implements Closeable
         }
     }
 
+  /**
+   * Will advance rolling config if server list has synced and current instance has been restarted
+   * or cancel rolling config (with force commit???) if max attempts to try waiting for quorum
+   * has been reached
+   *
+   * @param instanceState
+   * @throws Exception
+   */
     public synchronized void     checkRollingConfig(InstanceState instanceState) throws Exception
     {
         ConfigCollection localConfig = getCollection();
@@ -220,6 +228,10 @@ public class ConfigManager implements Closeable
     }
 
     @VisibleForTesting
+    /**
+     * get the loaded instance config collection
+     * TODO rename to getLoadedConfigCollection or getLoadedConfig?
+     */
     ConfigCollection getCollection()
     {
         return config.get().getConfig();
@@ -229,7 +241,7 @@ public class ConfigManager implements Closeable
     public LoadedInstanceConfig getLoadedInstanceConfig()
     {
         return config.get();
-    }
+    } // test only
 
     /**
      * FOR TESTING ONLY
@@ -245,7 +257,7 @@ public class ConfigManager implements Closeable
     @VisibleForTesting
     RollingConfigAdvanceAttempt getRollingConfigAdvanceAttempt()
     {
-        return rollingConfigAdvanceAttempt.get();
+        return rollingConfigAdvanceAttempt.get(); // test only
     }
 
     @VisibleForTesting

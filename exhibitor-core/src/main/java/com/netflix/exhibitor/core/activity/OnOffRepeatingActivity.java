@@ -21,6 +21,9 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.util.concurrent.atomic.AtomicReference;
 
+/**
+ * Repeating activity wrapper that allows the activity to be turned off by setting a 0 period
+ */
 public class OnOffRepeatingActivity implements RepeatingActivity
 {
     private final Logger log = LoggerFactory.getLogger(getClass());
@@ -49,7 +52,12 @@ public class OnOffRepeatingActivity implements RepeatingActivity
         }
     }
 
-    @Override
+  /**
+   * Set new time period if positive (or negative) periods
+   * or turns off ({@link #close()}) the underlying activity if new period is 0
+   * @param newTimePeriodMs new time period
+   */
+  @Override
     public void setTimePeriodMs(long newTimePeriodMs)
     {
         if ( actualRepeatingActivity.get() != null )

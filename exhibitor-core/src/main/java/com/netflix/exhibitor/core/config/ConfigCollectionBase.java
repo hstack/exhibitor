@@ -40,6 +40,9 @@ abstract class ConfigCollectionBase implements ConfigCollection, RollingConfigSt
     }
 
     @Override
+    /**
+     * seems to be used only for UI purposes
+     */
     public final String getRollingStatus()
     {
         if ( !isRolling() )

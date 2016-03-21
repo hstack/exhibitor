@@ -53,7 +53,14 @@ public class FourLetterWord
     {
         this(word, "localhost", config, connectionTimeOutMs);
     }
-    
+
+  /**
+   * Performs a four letter word check (here in constructor)
+   * @param word - the four letter word (e.g. STAT, RUOK, etc.)
+   * @param hostname - hostname to send the word to
+   * @param config - used for client port
+   * @param connectionTimeOutMs - used for the socket timeout
+   */
     public FourLetterWord(Word word, String hostname, InstanceConfig config, int connectionTimeOutMs)
     {
         Preconditions.checkNotNull(word);

@@ -35,7 +35,11 @@ class RollingReleaseState
         return config.getRollingConfigState().getRollingHostNames().get(config.getRollingConfigState().getRollingHostNamesIndex());
     }
 
-    boolean serverListHasSynced()
+  /**
+   * Whether rolling config server list has the same elements
+   * @return
+   */
+  boolean serverListHasSynced()
     {
         String      targetServersSpec = config.getRollingConfig().getString(StringConfigs.SERVERS_SPEC);
         ServerList  targetServerList = new ServerList(targetServersSpec);

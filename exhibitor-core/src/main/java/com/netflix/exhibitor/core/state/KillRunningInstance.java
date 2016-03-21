@@ -20,6 +20,9 @@ import com.netflix.exhibitor.core.Exhibitor;
 import com.netflix.exhibitor.core.activity.Activity;
 import com.netflix.exhibitor.core.activity.ActivityLog;
 
+/**
+ * Kills and restarts ZK (if configured so)
+ */
 public class KillRunningInstance implements Activity
 {
     private final Exhibitor exhibitor;

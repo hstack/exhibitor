@@ -191,6 +191,12 @@ public class MonitorRunningInstance implements Closeable
         }
     }
 
+  /**
+   * Restarts zookeeper if down or not serving requests and enough time has passed
+   * @param config
+   * @param localCurrentInstanceState
+   * @throws Exception
+   */
     private void checkForRestart(InstanceConfig config, InstanceState localCurrentInstanceState) throws Exception
     {
         if ( exhibitor.getConfigManager().isRolling() )

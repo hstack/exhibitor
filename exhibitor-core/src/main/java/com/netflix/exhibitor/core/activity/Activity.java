@@ -18,6 +18,10 @@ package com.netflix.exhibitor.core.activity;
 
 import java.util.concurrent.Callable;
 
+/**
+ * An Activity is a {@link Callable} that returns a boolean with a hook
+ * ({@link #completed}) that gets called when the actual call finished.
+ */
 public interface Activity extends Callable<Boolean>
 {
     /**

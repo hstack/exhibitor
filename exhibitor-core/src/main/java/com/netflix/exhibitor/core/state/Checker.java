@@ -21,6 +21,9 @@ import com.netflix.exhibitor.core.config.InstanceConfig;
 import com.netflix.exhibitor.core.config.StringConfigs;
 import java.util.List;
 
+/**
+ * Checks the state of a zookeeper host through "ruok" and "srvr" 4-letter commands
+ */
 public class Checker
 {
     private final Exhibitor exhibitor;
@@ -37,6 +40,17 @@ public class Checker
         this.hostname = hostname;
     }
 
+  /**
+   * Computes the state based on responses from "ruok" and "srvr" 4-letter commands
+   *
+   * IF the configuration retrieved from ConfigManager doesn't has zk data or install directories
+   * set it will always return (LATENT, false). It's unclear how these configs may be relevant for
+   * other ZK hosts.
+   *
+   * @return the (interpreted) state and whether the host is the leader
+   *         if the zk data directory or install directory in the
+   * @throws Exception
+   */
     public StateAndLeader calculateState() throws Exception
     {
         InstanceConfig          config = exhibitor.getConfigManager().getConfig();

@@ -16,6 +16,9 @@
 
 package com.netflix.exhibitor.core.config;
 
+/**
+ * A collection (set) of configuration items
+ */
 public interface ConfigCollection
 {
     public InstanceConfig       getConfigForThisInstance(String hostname);

@@ -20,8 +20,16 @@ import java.util.List;
 
 public interface RollingConfigState
 {
+    /**
+     * called from {@link com.netflix.exhibitor.core.rest.ConfigResource#getSystemState}
+     * @return a text to display in the UI
+     */
     public String           getRollingStatus();
 
+    /**
+     *  called from {@link com.netflix.exhibitor.core.rest.ConfigResource#getSystemState}
+     * @return
+     */
     public int              getRollingPercentDone();
 
     public List<String>     getRollingHostNames();
