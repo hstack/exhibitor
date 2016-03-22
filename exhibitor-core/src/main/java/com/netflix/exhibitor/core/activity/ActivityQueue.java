@@ -45,7 +45,7 @@ public class ActivityQueue implements Closeable
 
 
     /**
-     * A holder for an activity and an a delay (based on clock) time)
+     * A holder for an activity and an a delay (based on clock time)
      * after which the activity should be executed
      */
 
